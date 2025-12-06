@@ -1,32 +1,471 @@
----
-title: Set up your environment
-description: Learn how to set up your development environment to start building with Expo.
-hideTOC: true
-searchRank: 3
----
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Afreen Food Corner — কিচেন প্যানেল</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <h1>Afreen Food Corner</h1>
+      <p class="tag">Contact: <a href="tel:+918075843118">+91 80758 43118</a></p>
+    </div>
+    <nav class="nav">
+      <button data-view="orders" class="nav-btn active">অর্ডার</button>
+      <button data-view="menu" class="nav-btn">মেনু এডিট</button>
+      <button data-view="sales" class="nav-btn">বিক্রয় ট্র্যাকিং</button>
+      <button data-view="inventory" class="nav-btn">ইনভেন্টরি</button>
+    </nav>
+  </header>
 
-import { DevelopmentEnvironmentInstructions } from '~/scenes/get-started/set-up-your-environment/DevelopmentEnvironmentInstructions';
-import { DevelopmentModeForm } from '~/scenes/get-started/set-up-your-environment/DevelopmentModeForm';
-import { PlatformAndDeviceForm } from '~/scenes/get-started/set-up-your-environment/PlatformAndDeviceForm';
+  <main>
+    <!-- ORDERS -->
+    <section id="view-orders" class="view">
+      <h2>নতুন অর্ডার গ্রহণ করুন</h2>
+      <form id="order-form" class="card">
+        <label>
+          গ্রাহকের নাম
+          <input type="text" id="cust-name" placeholder="নাম" required />
+        </label>
+        <label>
+          আইটেম
+          <select id="order-item"></select>
+        </label>
+        <label>
+          পরিমাণ
+          <input type="number" id="order-qty" value="1" min="1" required />
+        </label>
+        <label>
+          নোট (ঐচ্ছিক)
+          <input type="text" id="order-note" placeholder="উদাহরণ: কম মসলায়" />
+        </label>
+        <div class="row">
+          <button type="submit" class="primary">অর্ডার যোগ করুন</button>
+          <button type="button" id="bulk-sample" class="muted">ডেমো অর্ডার</button>
+        </div>
+      </form>
 
-Let's set up a local development environment for running your project on Android and iOS.
+      <h3>প্রাপ্ত অর্ডার</h3>
+      <div id="orders-list"></div>
+    </section>
 
-## Where would you like to develop?
+    <!-- MENU EDIT -->
+    <section id="view-menu" class="view hidden">
+      <h2>মেনু এডিট করুন</h2>
+      <form id="menu-form" class="card">
+        <label>আইটেম নাম<input type="text" id="menu-name" placeholder="Item name" required></label>
+        <label>দাম (₹)<input type="number" id="menu-price" placeholder="Price" min="1" required></label>
+        <label>
+          স্টক (ঐচ্ছিক)
+          <input type="number" id="menu-stock" placeholder="Stock quantity or leave blank" min="0">
+        </label>
+        <div class="row">
+          <button type="submit" class="primary">আইটেম যোগ / আপডেট</button>
+          <button type="button" id="reset-menu" class="danger">ফর্ম রিসেট</button>
+        </div>
+      </form>
 
-We recommend using a real device to develop, since you'll get to see exactly what your users will see.
+      <h3>বর্তমান মেনু</h3>
+      <div id="menu-list"></div>
+    </section>
 
-<PlatformAndDeviceForm />
+    <!-- SALES -->
+    <section id="view-sales" class="view hidden">
+      <h2>বিক্রয় সারসংক্ষেপ</h2>
+      <div class="card" id="sales-summary">
+        <p>আজকের মোট বিক্রয়: <strong id="today-sales">₹0</strong></p>
+        <p>মোট অর্ডার: <strong id="total-orders">0</strong></p>
+        <p>সর্বোচ্চ বিক্রি হওয়া আইটেম: <strong id="top-item">—</strong></p>
+      </div>
 
-## How would you like to develop?
+      <h3>বিক্রয় লিস্ট</h3>
+      <div id="sales-list"></div>
+    </section>
 
-Expo Go is a sandbox for trying out Expo quickly. A development build is a build of your own app that includes Expo's developer tools.
+    <!-- INVENTORY -->
+    <section id="view-inventory" class="view hidden">
+      <h2>ইনভেন্টরি ম্যানেজমেন্ট (ঐচ্ছিক)</h2>
+      <div class="card">
+        <label><input type="checkbox" id="inventory-enabled" /> ইনভেন্টরি সক্ষম করুন</label>
+      </div>
+      <div id="inventory-list"></div>
+    </section>
+  </main>
 
-<DevelopmentModeForm />
+  <footer>
+    <small>© Afreen Food Corner — Contact: <a href="tel:+918075843118">+91 80758 43118</a></small>
+  </footer>
 
----
+  <script src="script.js"></script>
+</body>
+</html>:root{
+  --bg:#fafafa;
+  --card:#fff;
+  --accent:#2b7a78;
+  --muted:#666;
+  --danger:#d9534f;
+}
 
-<DevelopmentEnvironmentInstructions />
+*{box-sizing:border-box}
+body{
+  font-family:system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial;
+  margin:0; background:var(--bg); color:#111; line-height:1.4;
+}
+.top{
+  display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:linear-gradient(90deg,#eaf6f6,#fff);
+  border-bottom:1px solid #eee;
+}
+.brand h1{margin:0;font-size:1.25rem}
+.brand .tag{margin:4px 0 0;color:var(--muted);font-size:0.9rem}
+.nav{display:flex;gap:6px}
+.nav-btn{background:none;border:1px solid transparent;padding:8px 10px;border-radius:6px;cursor:pointer}
+.nav-btn.active{background:var(--accent);color:white;border-color:rgba(0,0,0,0.05)}
 
-## Next step
+main{padding:16px;max-width:980px;margin:18px auto}
+.card{background:var(--card);padding:12px;border-radius:8px;border:1px solid #eee;margin-bottom:12px}
+label{display:block;margin-bottom:8px;font-size:0.95rem}
+input[type="text"], input[type="number"], select{width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;margin-top:6px}
+.row{display:flex;gap:8px;align-items:center}
+button{padding:8px 12px;border-radius:6px;border:0;cursor:pointer}
+button.primary{background:var(--accent);color:white}
+button.muted{background:#f0f0f0}
+button.danger{background:var(--danger);color:#fff}
 
-You have a project and a development environment. Now it's time to start developing.
+.view.hidden{display:none}
+
+#orders-list, #menu-list, #sales-list, #inventory-list{
+  display:grid;gap:10px;
+}
+
+.item{
+  display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;border:1px solid #eee;background:#fff;
+}
+.item .meta{display:flex;gap:12px;align-items:center}
+.badge{padding:6px 8px;border-radius:6px;font-size:0.85rem}
+.status-prep{background:#fff3cd;border:1px solid #ffeeba}
+.status-ready{background:#d4edda;border:1px solid #c3e6cb}
+
+.small{font-size:0.85rem;color:var(--muted)}
+
+footer{text-align:center;padding:12px;color:var(--muted);font-size:0.9rem}
+@media (max-width:640px){
+  .top{flex-direction:column;align-items:flex-start;gap:8px}
+  .row{flex-direction:column}
+}// Simple front-end system using localStorage.
+// Features:
+// - Menu edit (add / update / remove)
+// - Take orders, update status (preparing / ready)
+// - Sales tracking (daily totals, top item)
+// - Optional inventory (enable & adjust stock)
+
+const STORAGE_KEYS = {
+  menu: 'af_menu_v1',
+  orders: 'af_orders_v1',
+  sales: 'af_sales_v1',
+  inventoryEnabled: 'af_inv_enabled_v1'
+};
+
+// --- default menu (from your message) ---
+const DEFAULT_MENU = [
+  { id: idgen(), name: 'চাউমিন (Chowmein)', priceMin:30, priceMax:50, price:40, stock: null },
+  { id: idgen(), name: 'রুটি প্লেট (Ruti Plate)', price:50, priceMin:null, priceMax:null, stock: null },
+  { id: idgen(), name: 'পুরি প্লেট (Puri Plate)', price:50, priceMin:null, priceMax:null, stock: null },
+  { id: idgen(), name: 'সমোসা (Samusa)', price:10, priceMin:null, priceMax:null, stock: null },
+  { id: idgen(), name: 'পকোড়া প্লেট (Pokora Plate)', price:30, priceMin:null, priceMax:null, stock: null },
+  { id: idgen(), name: 'চিকেন মোমোস প্লেট (Chicken Momos Plate)', price:50, priceMin:null, priceMax:null, stock: null }
+];
+
+function idgen(){ return 'id_' + Math.random().toString(36).slice(2,9); }
+
+// --- storage helpers ---
+function save(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+function load(key, fallback){ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+
+// --- initialize data ---
+let menu = load(STORAGE_KEYS.menu, DEFAULT_MENU);
+let orders = load(STORAGE_KEYS.orders, []);
+let sales = load(STORAGE_KEYS.sales, []); // each sale {id, dateISO, itemId, qty, total, name}
+let inventoryEnabled = load(STORAGE_KEYS.inventoryEnabled, false);
+
+// --- DOM refs ---
+const views = document.querySelectorAll('.view');
+const navBtns = document.querySelectorAll('.nav-btn');
+
+const orderItemSelect = document.getElementById('order-item');
+const ordersList = document.getElementById('orders-list');
+const orderForm = document.getElementById('order-form');
+const bulkSample = document.getElementById('bulk-sample');
+
+const menuForm = document.getElementById('menu-form');
+const menuName = document.getElementById('menu-name');
+const menuPrice = document.getElementById('menu-price');
+const menuStock = document.getElementById('menu-stock');
+const menuList = document.getElementById('menu-list');
+const resetMenuBtn = document.getElementById('reset-menu');
+
+const salesSummary = document.getElementById('sales-summary');
+const todaySalesEl = document.getElementById('today-sales');
+const totalOrdersEl = document.getElementById('total-orders');
+const topItemEl = document.getElementById('top-item');
+const salesList = document.getElementById('sales-list');
+
+const inventoryToggle = document.getElementById('inventory-enabled');
+const inventoryList = document.getElementById('inventory-list');
+
+// --- nav ---
+navBtns.forEach(b=>{
+  b.addEventListener('click', ()=> {
+    navBtns.forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    showView(b.dataset.view);
+  });
+});
+function showView(name){
+  views.forEach(v=>{
+    v.classList.toggle('hidden', !v.id.endsWith(name));
+  });
+  // refresh content when switching
+  renderMenu();
+  renderOrders();
+  renderSales();
+  renderInventory();
+}
+
+// --- menu functions ---
+function renderMenu(){
+  // populate select for ordering
+  orderItemSelect.innerHTML = '';
+  menu.forEach(it=>{
+    const opt = document.createElement('option');
+    opt.value = it.id;
+    opt.textContent = `${it.name} — ₹${it.price}${it.priceMin ? ` (₹${it.priceMin}-₹${it.priceMax||it.price})` : ''}`;
+    orderItemSelect.appendChild(opt);
+  });
+
+  // render menu list with edit/delete
+  menuList.innerHTML = '';
+  menu.forEach(it=>{
+    const div = document.createElement('div');
+    div.className = 'item';
+    const left = document.createElement('div'); left.className='meta';
+    left.innerHTML = `<div><strong>${escapeHtml(it.name)}</strong><div class="small">₹${it.price}${it.stock !== null ? ' — stock: '+it.stock : ''}</div></div>`;
+    const right = document.createElement('div');
+    const edit = document.createElement('button'); edit.textContent='Edit';
+    const del = document.createElement('button'); del.textContent='Delete';
+    edit.addEventListener('click', ()=> {
+      menuName.value = it.name; menuPrice.value = it.price; menuStock.value = (it.stock===null?'':it.stock);
+      menuForm.dataset.editId = it.id;
+      menuName.focus();
+    });
+    del.addEventListener('click', ()=> {
+      if(confirm(`"${it.name}" মুছে ফেলতে চান?`)){
+        menu = menu.filter(x=>x.id !== it.id);
+        save(STORAGE_KEYS.menu, menu);
+        renderMenu();
+      }
+    });
+    right.appendChild(edit); right.appendChild(del);
+    div.appendChild(left); div.appendChild(right);
+    menuList.appendChild(div);
+  });
+}
+
+menuForm.addEventListener('submit', e=>{
+  e.preventDefault();
+  const name = menuName.value.trim();
+  const price = Number(menuPrice.value);
+  const stockVal = menuStock.value.trim();
+  const stock = stockVal === '' ? null : Number(stockVal);
+  if(!name || !price) return alert('সঠিক নাম ও দাম দিন।');
+
+  if(menuForm.dataset.editId){
+    // update
+    const id = menuForm.dataset.editId;
+    const it = menu.find(x=>x.id===id);
+    if(it){
+      it.name = name; it.price = price; it.stock = stock;
+    }
+    delete menuForm.dataset.editId;
+  } else {
+    // add new
+    menu.push({ id: idgen(), name, price, stock });
+  }
+  save(STORAGE_KEYS.menu, menu);
+  menuForm.reset();
+  renderMenu();
+  renderOrders();
+});
+
+resetMenuBtn.addEventListener('click', ()=> menuForm.reset());
+
+// --- orders functions ---
+orderForm.addEventListener('submit', e=>{
+  e.preventDefault();
+  const cust = document.getElementById('cust-name').value.trim();
+  const itemId = orderItemSelect.value;
+  const qty = Number(document.getElementById('order-qty').value);
+  const note = document.getElementById('order-note').value.trim();
+
+  const item = menu.find(m=>m.id===itemId);
+  if(!item) return alert('আইটেম পাওয়া যায়নি।');
+
+  if(inventoryEnabled && item.stock !== null){
+    if(item.stock < qty) return alert('স্টক পর্যাপ্ত নেই।');
+    item.stock -= qty;
+    save(STORAGE_KEYS.menu, menu);
+  }
+
+  const order = {
+    id: idgen(),
+    customer: cust || 'গেস্ট',
+    itemId,
+    itemName: item.name,
+    qty,
+    note,
+    status: 'preparing', // or ready
+    createdAt: new Date().toISOString()
+  };
+  orders.unshift(order);
+  save(STORAGE_KEYS.orders, orders);
+
+  // record sale immediately (you may choose to record on status ready; here we record now)
+  const sale = {
+    id: idgen(),
+    dateISO: new Date().toISOString(),
+    itemId: item.id,
+    name: item.name,
+    qty,
+    total: item.price * qty
+  };
+  sales.push(sale);
+  save(STORAGE_KEYS.sales, sales);
+
+  orderForm.reset();
+  renderOrders();
+  renderSales();
+  renderMenu();
+});
+
+bulkSample.addEventListener('click', ()=>{
+  // add a demo order for convenience
+  if(menu.length === 0) return alert('মেনু খালি।');
+  document.getElementById('cust-name').value = 'Demo Customer';
+  document.getElementById('order-qty').value = 1;
+  orderItemSelect.selectedIndex = 0;
+});
+
+// render orders list
+function renderOrders(){
+  ordersList.innerHTML = '';
+  if(orders.length === 0) {
+    ordersList.innerHTML = '<div class="card small">কোন অর্ডার নেই</div>';
+    return;
+  }
+  orders.forEach(o=>{
+    const div = document.createElement('div'); div.className='item';
+    const left = document.createElement('div'); left.innerHTML = `<div><strong>${escapeHtml(o.itemName)}</strong> <div class="small">পরিমাণ: ${o.qty} — ${escapeHtml(o.customer)}</div></div>`;
+    const right = document.createElement('div');
+    const statusBadge = document.createElement('span'); statusBadge.className='badge ' + (o.status==='preparing' ? 'status-prep' : 'status-ready');
+    statusBadge.textContent = o.status === 'preparing' ? 'প্রস্তুত হচ্ছে' : 'প্রস্তুত';
+    const toggle = document.createElement('button'); toggle.textContent = o.status === 'preparing' ? 'Mark ready' : 'Mark preparing';
+    const remove = document.createElement('button'); remove.textContent = 'Remove';
+    toggle.addEventListener('click', ()=> {
+      o.status = o.status === 'preparing' ? 'ready' : 'preparing';
+      save(STORAGE_KEYS.orders, orders);
+      renderOrders();
+      renderSales();
+    });
+    remove.addEventListener('click', ()=> {
+      if(confirm('এই অর্ডার মুছতে চান?')){
+        orders = orders.filter(x=>x.id !== o.id);
+        save(STORAGE_KEYS.orders, orders);
+        renderOrders();
+      }
+    });
+
+    right.appendChild(statusBadge); right.appendChild(toggle); right.appendChild(remove);
+    div.appendChild(left); div.appendChild(right);
+    ordersList.appendChild(div);
+  });
+}
+
+// --- sales functions ---
+function renderSales(){
+  // today's total
+  const today = new Date().toISOString().slice(0,10);
+  const todaySales = sales.filter(s => s.dateISO.slice(0,10) === today);
+  const total = todaySales.reduce((acc,s)=>acc + s.total, 0);
+  todaySalesEl.textContent = `₹${total}`;
+
+  totalOrdersEl.textContent = sales.length;
+
+  // top item overall
+  const agg = {};
+  sales.forEach(s => { agg[s.name] = (agg[s.name]||0) + s.qty; });
+  const top = Object.keys(agg).sort((a,b)=>agg[b]-agg[a])[0] || '—';
+  topItemEl.textContent = top;
+
+  // sales list
+  salesList.innerHTML = '';
+  if(sales.length === 0) salesList.innerHTML = '<div class="card small">কোন বিক্রয় রেকর্ড নেই</div>';
+  else {
+    sales.slice().reverse().forEach(s=>{
+      const div = document.createElement('div'); div.className='item';
+      div.innerHTML = `<div><strong>${escapeHtml(s.name)}</strong><div class="small">${s.qty} pcs — ₹${s.total} — ${new Date(s.dateISO).toLocaleString()}</div></div><div><small>id:${s.id}</small></div>`;
+      salesList.appendChild(div);
+    });
+  }
+}
+
+// --- inventory functions ---
+inventoryToggle.checked = inventoryEnabled;
+inventoryToggle.addEventListener('change', ()=>{
+  inventoryEnabled = inventoryToggle.checked;
+  save(STORAGE_KEYS.inventoryEnabled, inventoryEnabled);
+  renderInventory();
+});
+function renderInventory(){
+  inventoryList.innerHTML = '';
+  if(!inventoryEnabled){
+    inventoryList.innerHTML = '<div class="card small">ইনভেন্টরি নিষ্ক্রিয় আছে — চালু করতে চেকবক্সটি টিক করুন।</div>';
+    return;
+  }
+  if(menu.length === 0) {
+    inventoryList.innerHTML = '<div class="card small">মেনু খালি — আইটেম যোগ করুন এবং স্টক সেট করুন।</div>';
+    return;
+  }
+  menu.forEach(it=>{
+    const div = document.createElement('div'); div.className='item';
+    const left = document.createElement('div'); left.innerHTML = `<div><strong>${escapeHtml(it.name)}</strong><div class="small">Stock: ${it.stock===null? 'Unset' : it.stock}</div></div>`;
+    const right = document.createElement('div');
+    const inc = document.createElement('button'); inc.textContent='+';
+    const dec = document.createElement('button'); dec.textContent='-';
+    const set = document.createElement('button'); set.textContent='Set';
+    inc.addEventListener('click', ()=> {
+      it.stock = (it.stock||0) + 1; save(STORAGE_KEYS.menu, menu); renderInventory(); renderMenu();
+    });
+    dec.addEventListener('click', ()=> {
+      it.stock = Math.max(0, (it.stock||0) - 1); save(STORAGE_KEYS.menu, menu); renderInventory(); renderMenu();
+    });
+    set.addEventListener('click', ()=> {
+      const v = prompt('নতুন স্টক সংখ্যা দিন (সংখ্যা):', it.stock===null?'0':it.stock);
+      if(v !== null){
+        const nv = Number(v);
+        if(!Number.isFinite(nv) || nv < 0) return alert('সঠিক সংখ্যা দিন।');
+        it.stock = nv; save(STORAGE_KEYS.menu, menu); renderInventory(); renderMenu();
+      }
+    });
+    right.appendChild(inc); right.appendChild(dec); right.appendChild(set);
+    div.appendChild(left); div.appendChild(right);
+    inventoryList.appendChild(div);
+  });
+}
+
+// --- utilities ---
+function escapeHtml(s){ return (s+'').replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+
+// initial render
+renderMenu(); renderOrders(); renderSales(); renderInventory();
+showView('orders');
